@@ -1,19 +1,26 @@
 <template>
     <div class="mt-4">
-        <b-button class="mr-1" variant="primary"><font-awesome-icon icon="fa-solid fa-floppy-disk" /> Save</b-button>
-        <b-button variant="primary"><font-awesome-icon icon="fa-solid fa-rotate" /> Clear</b-button>
+        <b-button class="mr-1 save-reset-button" variant="primary"><font-awesome-icon icon="fa-solid fa-floppy-disk" @click="onSubmit" /> Save</b-button>
+        <b-button class="save-reset-button" variant="primary"><font-awesome-icon icon="fa-solid fa-rotate" @click="onReset"/> Clear</b-button>
     </div>
     <hr>
 </template>
 
 <script>
 export default {
-
+    methods: {
+        onReset() {
+            console.log('reset')
+        },
+        onSubmit() {
+            console.log('submitted')
+        }
+    },
 }
 </script>
 
 <style scoped>
-    button {
+    .save-reset-button {
         width: 110px;
         font-size: 17px;
     }

@@ -24,9 +24,9 @@
     }
 
     .navigation-items {
-        font-size: 1.2em;
+        font-size: 1em;
         font-weight: 600;
-        height: 55px;
+        height: 45px;
         border: 3px solid #353b48;
         border-radius: 18px 18px;
         margin-bottom: 25px;

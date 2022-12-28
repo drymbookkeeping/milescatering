@@ -10,9 +10,17 @@
 
                 <b-col class="p-0" cols ="8" sm="8" md="9" lg="10">
 
-                    <TopToolbar />
 
-                    <b-form class="form">
+                    <b-form class="form" @submit="onSubmit" @reset="onReset" v-if="show">
+
+                        <div class="mt-4">
+                            <b-button type="submit" variant="primary" class="mr-1 save-reset-button"><font-awesome-icon icon="fa-solid fa-floppy-disk"/> Submit</b-button>
+                            <b-button type="reset" variant="danger" class="save-reset-button"> <font-awesome-icon icon="fa-solid fa-rotate"/> Reset</b-button>
+
+                            <hr>
+                        </div>
+                        
+
                         <b-form-group label-cols="1" id="itemCode" label="Code:" label-for="item-code">
                             <b-form-input 
                                 v-model="form.itemCode"
@@ -116,7 +124,8 @@
                 searchField,
                 searchValue,
                 themeColor,
-                deleteItem
+                deleteItem,
+                show: true
             };
         },
         
@@ -132,17 +141,29 @@
             getValidationState({ dirty, validated, valid = null }) {
                 return dirty || validated ? valid : null;
             },
-            resetForm() {
-                this.form = {
-                    itemName: null,
-                    itemCode: null
-                };
-                this.$nextTick(() => {
-                    this.$refs.observer.reset();
-                });
+            onReset(event) {
+                // event.preventDefault()
+                // this.form = {
+                //     itemName: null,
+                //     itemCode: null
+                // };
+                // this.$nextTick(() => {
+                //     this.$refs.observer.reset();
+                // });
+                console.log('reset')
             },
-            onSubmit() {
-                alert("Form submitted!");
+            onSubmit(event) {
+                // event.preventDefault()
+                console.log(this.form)
+
+                axios.post("http://127.0.0.1:8000/api/item/",this.form)
+                .then(res => {
+                    console.log(res)
+                    console.log('Successfully save.')
+                })
+                .catch(error => {
+                    console.log(error)
+                });
             }
         },
         components: { TopToolbar }
@@ -205,4 +226,13 @@
     padding: 0px;
     height: 30px;
   }
+
+  .save-reset-button {
+        width: 110px;
+        font-size: 17px;
+    }
+
+    hr {
+        background-color: #f1c40f;
+    }
 </style>
