@@ -37,11 +37,7 @@ const router = createRouter({
       name: 'menu',
       component: () => import('../views/MenuView.vue')
     }
-    ,{
-      path: '/ingredient',
-      name: 'ingredient',
-      component: () => import('../views/IngredientView.vue')
-    }
+    ,{ path: "/:pathMatch(.*)*", redirect: "/item" },
   ]
 })
 

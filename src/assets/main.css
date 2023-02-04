@@ -6,8 +6,10 @@
   padding: 2rem; */
 
   font-weight: normal;
+  /* overflow-x: hidden; */
   overflow: hidden;
 }
+
 
 a,
 .green {
@@ -53,9 +55,16 @@ a,
   margin-left: 1em;
 }
 
+
 .form-control {
   line-height: 0px;
 }
+
+.text-right {
+  text-align: right;
+}
+
+
 
 /* .next-page__click-button {
     display: inline-block;

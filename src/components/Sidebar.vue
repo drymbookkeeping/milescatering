@@ -4,7 +4,6 @@
             <router-link to="/quote" class="navigation-items"> QUOTATION </router-link>
             <router-link to="/order" class="navigation-items"> ORDER </router-link>
             <router-link to="/menu" class="navigation-items"> MENU </router-link>
-            <router-link to="/ingredient" class="navigation-items"> INGREDIENT </router-link>
             <router-link to="/item" class="navigation-items"> ITEMS </router-link>
         </div>
     </div>

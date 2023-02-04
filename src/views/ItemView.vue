@@ -10,17 +10,12 @@
 
                 <b-col class="p-0" cols ="8" sm="8" md="9" lg="10">
 
-
-                    <b-form class="form" @submit="onSubmit" @reset="onReset" v-if="show">
-
-                        <div class="mt-4">
-                            <b-button type="submit" variant="primary" class="mr-1 save-reset-button"><font-awesome-icon icon="fa-solid fa-floppy-disk"/> Submit</b-button>
-                            <b-button type="reset" variant="danger" class="save-reset-button"> <font-awesome-icon icon="fa-solid fa-rotate"/> Reset</b-button>
-
-                            <hr>
-                        </div>
-                        
-
+                    <div class="mt-4">
+                        <b-button class="mr-1 toolbar-button" variant="primary" @click="save"><font-awesome-icon icon="fa-solid fa-floppy-disk" /> Save</b-button>
+                        <b-button class="toolbar-button" variant="primary" @click="resetForm"><font-awesome-icon icon="fa-solid fa-rotate" /> Clear</b-button>
+                    </div>
+                    <hr>
+                    <b-form class="form">
                         <b-form-group label-cols="1" id="itemCode" label="Code:" label-for="item-code">
                             <b-form-input 
                                 v-model="form.itemCode"
@@ -73,8 +68,9 @@
 
                         <template #item-operation="item">
                             <div class="operation-wrapper">
-                                <b-button @click="deleteItem(item)" class="operation mr-1" variant="outline-danger"><font-awesome-icon icon="fa-solid fa-trash" /></b-button>
-                                <b-button class="operation" variant="outline-info"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></b-button>
+                                <!-- <b-button @click="deleteItem(item)" class="operation mr-1" variant="outline-danger"><font-awesome-icon icon="fa-solid fa-trash" /></b-button> -->
+                                <b-button @click="toggle(item)" class="operation mr-1" variant="outline-danger"><font-awesome-icon icon="fa-solid fa-trash" /></b-button>
+                                <b-button @click="retrieveInfo(item)" class="operation" variant="outline-info"><font-awesome-icon icon="fa-solid fa-pen-to-square" /></b-button>
                             </div>
                         </template>
                         </EasyDataTable>
@@ -82,10 +78,42 @@
                     </div>
                 </b-col>
                 
-
+                
             </b-row>
         </b-container>
 
+        
+      
+        <b-modal v-model="modalShow" no-close-on-backdrop="true">
+            <template #header>
+                <h5>Are you sure to delete this item?</h5>
+            </template>
+
+            <template #default>
+                <p>Code: {{ this.selectedItem.itemCode }}</p>
+                <p>Name: {{ this.selectedItem.itemName }}</p>
+            </template>
+
+            <template #footer>
+                <button class="btn btn-primary" @click="deleteItem">Yes</button>
+                <button class="btn btn-primary" @click="this.modalShow=false">Cancel</button>
+            </template>
+        </b-modal>
+
+        <!-- ALERT MESSAGE -->
+        <b-modal v-model="alertModal" no-close-on-backdrop="true">
+            <template #header>
+                <h5>Operation Message</h5>
+            </template>
+
+            <template #default>
+                <p> {{ alertMessage }}</p>
+            </template>
+
+            <template #footer>
+                <button class="btn btn-primary" @click="this.alertModal=false">Ok</button>
+            </template>
+        </b-modal>
         
     </main>
 </template>
@@ -108,8 +136,8 @@
     const searchField = ["itemCode", "itemName"];
     let searchValue = ref();
     const themeColor = "#f1c40f";
-    
-   
+    let selectedItem: Item[] = [];
+    let alertMessage: String ="";
 
     export default {
     
@@ -124,8 +152,11 @@
                 searchField,
                 searchValue,
                 themeColor,
-                deleteItem,
-                show: true
+                show: true,
+                modalShow: false,
+                alertModal: false,
+                selectedItem,
+                alertMessage,
             };
         },
         
@@ -165,69 +196,120 @@
                     console.log(error)
                 });
             }
+            ,resetForm() {
+                this.form = {
+                    itemName: '',
+                    itemCode: ''
+                };
+                this.refreshDatatable()
+            },
+            save() {
+                if(this.form.id > 0) {
+                    axios.put("http://127.0.0.1:8000/api/item/"+this.form.id,this.form)
+                    .then(res => {
+                        if(res) {
+                            this.alertMessage = true;
+                            this.toggleAlert('Successfully updated.');
+                            this.resetForm()
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error)
+                    });
+                    
+                } else {
+                    axios.post("http://127.0.0.1:8000/api/item",this.form)
+                    .then(res => {
+                        if(res) {
+                            this.alertMessage = true;
+                            this.toggleAlert('Successfully saved.');
+                            this.resetForm()
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error)
+                    });
+                    
+                }
+                
+            },
+            deleteItem(){
+                axios.delete("http://127.0.0.1:8000/api/item/"+this.selectedItem.id)
+                .then(res => {
+                    this.toggleAlert('Successfully deleted.')
+                })
+                .catch(error => {
+                    console.log(error)
+                });
+                this.items = this.items.filter((item) => item.id !== this.selectedItem.id);
+                this.modalShow =false;
+            },
+            toggle(item: Item){
+                this.selectedItem = item
+                this.modalShow = !this.modalShow;
+            }
+            ,toggleAlert(message: String){
+                this.alertMessage = message
+                this.alertModal = !this.alertModal;
+            }
+            ,refreshDatatable(){
+                axios.get("http://127.0.0.1:8000/api/item")
+                .then(res => {
+                    this.items = res.data;
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+            }
+            ,retrieveInfo(item: Item) {
+                console.log(item)
+                this.form = item;
+            }
         },
         components: { TopToolbar }
         ,mounted() {
-            axios.get("http://127.0.0.1:8000/api/item")
-            .then(res => {
-                this.items = res.data;
-            })
-            .catch(error => {
-                console.log(error)
-                // Manage errors if found any
-            })
-        }
+            this.refreshDatatable()
+        },
+        compatConfig: { MODE: 3 }
     };
 
-    const deleteItem = (val: Item) => {
-        console.log(items.value);
-        // axios.delete("http://127.0.0.1:8000/api/item/"+val.id)
-        // .then(res => {
-        //     console.log(res)
-        //     console.log('Successfully deleted.')
-        // })
-        // .catch(error => {
-        //     console.log(error)
-        // });
-      items.value = items.value.filter((item) => item.id !== val.id);
-    };
 </script>
 
 <style scoped>
-  .form {
-    padding:1em 2em 0em 2em;
-    width: 900px;
-  }
+    .form {
+        padding:1em 2em 0em 2em;
+        width: 900px;
+    }
 
-  .maincontainer {
-    width: 100%;
-    height: 100vh;
-    top: 75px;
-    padding: 0px;
-  }
+    .maincontainer {
+        width: 100%;
+        height: 100vh;
+        top: 75px;
+        padding: 0px;
+    }
 
-  .customize-table {
-    --easy-table-header-background-color : #192a56;
-    --easy-table-header-font-color: white;
-    --easy-table-header-font-size: 14px;
-    --easy-table-body-row-font-size: 14px;
+    .customize-table {
+        --easy-table-header-background-color : #192a56;
+        --easy-table-header-font-color: white;
+        --easy-table-header-font-size: 14px;
+        --easy-table-body-row-font-size: 14px;
 
-    --easy-table-footer-background-color: #192a56;
-    --easy-table-footer-font-color: white;
+        --easy-table-footer-background-color: #192a56;
+        --easy-table-footer-font-color: white;
 
-    --easy-table-border: 1px solid black;
+        --easy-table-border: 1px solid black;
 
-    --easy-table-row-border: 1px solid #636e72;
+        --easy-table-row-border: 1px solid #636e72;
 
-  }
+    }
 
-  .operation{
-    width: 35px;
-    padding: 0px;
-    height: 30px;
-  }
+    .operation{
+        width: 35px;
+        padding: 0px;
+        height: 30px;
+    }
 
-  .save-reset-button {
+    .toolbar-button {
         width: 110px;
         font-size: 17px;
     }

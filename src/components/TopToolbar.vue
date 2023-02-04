@@ -1,7 +1,7 @@
 <template>
     <div class="mt-4">
-        <b-button class="mr-1 save-reset-button" variant="primary"><font-awesome-icon icon="fa-solid fa-floppy-disk" @click="onSubmit" /> Save</b-button>
-        <b-button class="save-reset-button" variant="primary"><font-awesome-icon icon="fa-solid fa-rotate" @click="onReset"/> Clear</b-button>
+        <b-button class="mr-1" variant="primary"><font-awesome-icon icon="fa-solid fa-floppy-disk"/> Save</b-button>
+        <b-button variant="primary"><font-awesome-icon icon="fa-solid fa-rotate" /> Clear</b-button>
     </div>
     <hr>
 </template>
